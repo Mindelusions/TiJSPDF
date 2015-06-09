@@ -19,7 +19,8 @@ Visit the [JSPDF blog post](http://snapshotmedia.co.uk/blog/jspdf) for PDF creat
 
 This project contains an example application using a demo from the JSPDF demo page. If you'd rather just 
 get going on making your own app, you can download just the modified js files from the 'Downloads' section.
-Just drop the uncompressed files into your 'Resources' folder and start building.
+Just drop the uncompressed files into your **'/app/assets/'** folder and start building.
+****EDIT: This used to say "Just drop the uncompressed files into your 'Resources' folder..." This has now become incorrect with Appcelerator's use of Alloy. You now will need to drop the uncompressed files into the path specified above.****
 
 ## Usage
 
@@ -27,6 +28,9 @@ Ripped straight from the included example app.
 
 ~~~
 // Include the JSPDF libraries
+// ****EDIT: Now with the use of Alloy, you will need to include the rest of the path following /app/assets/.****
+// **** For example, your file might be located in /app/assets/TiJSPDF-master/Resources/jspdf.js ****
+// **** You will also need to edit the includes in jspdf.js to do the same ****
 Ti.include('jspdf.js');
 
 var doc = new jsPDF();
