@@ -1,13 +1,16 @@
 /**
  * jsPDF
  * (c) 2009 James Hall
+ * (c) 2015 Hannah White
  * 
  * Some parts based on FPDF.
  */
 
+
+// ** WHEN USING Ti.INCLUDE, the statement already accounts for /app/assets/ **
 Ti.include(
-	'/libs/sprintf.js',
-	'/libs/base64.js'
+	'/TiJSPDF-master/Resources/libs/sprintf.js',
+	'/TiJSPDF-master/Resources/libs/base64.js'
 );
 var jsPDF = function(){
 	
@@ -251,6 +254,30 @@ var jsPDF = function(){
 		}
 	}
 	
+	var f2= function(number) {
+			return number.toFixed(2); // Ie, %.2f
+	}
+	
+	var getStyle = function(style) {
+			// see path-painting operators in PDF spec
+			var op = 'S'; // stroke
+			if (style === 'F') {
+				op = 'f'; // fill
+			} else if (style === 'FD' || style === 'DF') {
+				op = 'B'; // both
+			} else if (style === 'f' || style === 'f*' || style === 'B' || style === 'B*') {
+				/*
+				Allow direct use of these PDF path-painting operators:
+				- f	fill using nonzero winding number rule
+				- f*	fill using even-odd rule
+				- B	fill then stroke with fill using non-zero winding number rule
+				- B*	fill then stroke with fill using even-odd rule
+				*/
+				op = style;
+			}
+			return op;
+	}
+	
 	var _addPage = function() {
 		beginPage();
 		// Set line width
@@ -301,6 +328,36 @@ var jsPDF = function(){
 		},
 		setFontSize: function(size) {
 			fontSize = size;
+		},
+		
+		/**
+		 * Adds a rectangle to PDF
+		 *
+		 * @param {Number} x Coordinate (in units declared at inception of PDF document) against left edge of the page
+		 * @param {Number} y Coordinate (in units declared at inception of PDF document) against upper edge of the page
+		 * @param {Number} w Width (in units declared at inception of PDF document)
+		 * @param {Number} h Height (in units declared at inception of PDF document)
+		 * @param {String} style A string specifying the painting style or null.  Valid styles include: 'S' [default] - stroke, 'F' - fill,  and 'DF' (or 'FD') -  fill then stroke. A null value postpones setting the style so that a shape may be composed using multiple method calls. The last drawing method call used to define the shape should not have a null style argument.
+		 * @function
+		 * @returns {jsPDF}
+		 * @methodOf jsPDF#
+		 * @name rect
+		 */
+		rect: function(x, y, w, h, style) {
+			var op = getStyle(style);
+			out([
+					f2(x * k),
+					f2((pageHeight - y) * k),
+					f2(w * k),
+					f2(-h * k),
+					're'
+				].join(' '));
+
+			if (style !== null) {
+				out(getStyle(style));
+			}
+
+			return this;
 		}
 	}
 
